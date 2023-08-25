@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const { errorLogger, requestLogger } = require('./middlewares/logger');
 
 const { commonRoutes, protectedRoutes } = require('./routes/index');
 
@@ -17,23 +19,21 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
-
+app.use(requestLogger);
 app.use(helmet());
-
 app.use(bodyParser.json());
-
+app.use(cors);
 app.use(cookieParser());
-
 app.use(limiter);
 
 app.use('/', commonRoutes);
-
 app.use('/', auth, protectedRoutes);
 
 app.use(() => {
   throw new NotFoundError('Запрашиваемый адрес не найден. Проверьте URL и метод запроса');
 });
 
+app.use(errorLogger);
 app.use(errors());
 app.use(errorsHandler);
 

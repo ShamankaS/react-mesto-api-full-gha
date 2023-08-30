@@ -5,7 +5,7 @@ import Header from './Header.js';
 import Main from './Main.js';
 import Footer from './Footer.js';
 import ImagePopup from './ImagePopup.js';
-import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
+import CurrentUserContext from '../contexts/CurrentUserContext.js';
 import EditProfilePopup from './EditProfilePopup.js';
 import EditAvatarPopup from './EditAvatarPopup.js';
 import AddPlacePopup from './AddPlacePopup.js';
@@ -37,6 +37,7 @@ export default function App() {
   const [isLoadingEnter, setIsLoadingEnter] = useState(false);
   const [infoTooltipText, setInfoTooltipText] = useState('');
   const navigate = useNavigate();
+  const [error, setError] = useState('');
   const [jwt, setJwt] = useState('');
 
   const fetchData = async () => {

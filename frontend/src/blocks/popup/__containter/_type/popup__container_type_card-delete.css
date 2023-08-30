@@ -1,6 +1,7 @@
 .popup__container_type_card-delete {
     height: 181px;
     width: 430px;
+    align-items: stretch;
 }
 
 @media screen and (max-width: 581px) {

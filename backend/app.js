@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
-const cors = require('cors');
+const cors = require('./middlewares/cors');
 const { errorLogger, requestLogger } = require('./middlewares/logger');
 
 const { commonRoutes, protectedRoutes } = require('./routes/index');

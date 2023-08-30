@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import PopupWithForm from "./PopupWithForm";
-import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import CurrentUserContext from "../contexts/CurrentUserContext";
 
 export default function EditProdilePopup({ isOpen, onClose, onUpdateUser, isLoading }) {
   const [name, setName] = useState('');

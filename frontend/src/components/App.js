@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { api } from '../utils/Api.js';
 import Header from './Header.js';
 import Main from './Main.js';
@@ -9,6 +10,11 @@ import EditProfilePopup from './EditProfilePopup.js';
 import EditAvatarPopup from './EditAvatarPopup.js';
 import AddPlacePopup from './AddPlacePopup.js';
 import ConfirmDeleteCardPopup from './ConfirmDeleteCardPopup.js';
+import * as Auth from '../utils/Auth.js';
+import ProtectedRoute from './ProtectedRoute.js';
+import Login from './Login.js';
+import Register from './Register.js';
+import InfoToolTip from './InfoTooltip.js';
 
 export default function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -23,29 +29,42 @@ export default function App() {
   const [isLoadingEditAvatarStart, setIsLoadingEditAvatarStart] = useState(false);
   const [isConfirmDeleteCardPopupopen, setIsConfirmDeleteCardPopupopen] = useState(false);
   const [isLoadingDeleteCardStart, setIsLoadingDeleteCardStart] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoadingRegistration, setIsLoadingRegistration] = useState(false);
+  const [isLoadingEnter, setIsLoadingEnter] = useState(false);
+  const [infoTooltipText, setInfoTooltipText] = useState('');
+  const navigate = useNavigate();
+  const [jwt, setJwt] = useState('');
 
   const fetchData = async () => {
     try {
       const res = await api.getUserInfo();
       setCurrentUser(res);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   };
 
   const fetchCards = async () => {
-    try {
-      const res = await api.getInitialCards();
-      setCards(res);
-    } catch (error) {
-      console.warn(error);
+    if (jwt) {
+      try {
+        const res = await api.getInitialCards({
+          authorization: `Bearer ${jwt}`,
+        });
+        setCards(res);
+      } catch (err) {
+        console.warn(err);
+      }
     }
   };
 
   useEffect(() => {
     fetchData();
     fetchCards();
-  }, []);
+  }, [isLoggedIn, jwt]);
 
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
@@ -62,7 +81,7 @@ export default function App() {
   function handleConfirmDeleleCardClick(data) {
     setSelectedCard(data);
     setIsConfirmDeleteCardPopupopen(true);
-  }
+  };
 
   function closeAllPopups() {
     setIsEditProfilePopupOpen(false);
@@ -70,6 +89,7 @@ export default function App() {
     setIsEditAvatarPopupOpen(false);
     setIsCardPopupOpen(false);
     setIsConfirmDeleteCardPopupopen(false);
+    setIsInfoTooltipOpen(false);
   };
 
   const mouseEventType = 'click';
@@ -77,19 +97,19 @@ export default function App() {
   const keyEventType = 'keydown';
   const openPopupSelector = 'popup_active';
 
-  const handleEscKey = (evt) => {
+  const handleEscKey = useCallback((evt) => {
     if (evt.key === keyNameEsc) {
       closeAllPopups();
     }
-  };
+  }, []);
 
-  const handleClickOutside = (evt) => {
+  const handleClickOutside = useCallback((evt) => {
     if (evt.target.classList.contains(openPopupSelector)) {
       closeAllPopups();
     }
-  };
+  }, []);
 
-  const anyPopupOpen = isAddPlacePopupOpen || isCardPopupOpen || isEditAvatarPopupOpen || isEditProfilePopupOpen || isConfirmDeleteCardPopupopen;
+  const anyPopupOpen = isAddPlacePopupOpen || isCardPopupOpen || isEditAvatarPopupOpen || isEditProfilePopupOpen || isConfirmDeleteCardPopupopen || isInfoTooltipOpen;
 
   useEffect(() => {
     if (anyPopupOpen) {
@@ -100,7 +120,7 @@ export default function App() {
         document.removeEventListener(keyEventType, handleEscKey, true);
       }
     }
-  }, [anyPopupOpen]);
+  }, [anyPopupOpen, handleEscKey, handleClickOutside]);
 
   const handleCardClick = (data) => {
     setIsCardPopupOpen(true);
@@ -108,7 +128,7 @@ export default function App() {
   };
 
   const handleCardLikeClick = async (card) => {
-    const isLiked = card.likes.some(item => item._id === currentUser._id);
+    const isLiked = card.likes.some(item => (item._id || item) === currentUser._id);
     try {
       const res = await api.changeLikeCardStatus(card, !isLiked);
       setCards((state) => state.map(item => item._id === card._id ? res : item));
@@ -159,7 +179,7 @@ export default function App() {
   const handleAddPlaceSubmit = async (data) => {
     setIsLoadingAddPlaceStart(true);
     try {
-      const res = await api.addNewCard(data);
+      const { res } = await api.addNewCard(data);
       setCards([res, ...cards]);
       closeAllPopups();
     } catch (error) {
@@ -169,18 +189,100 @@ export default function App() {
     }
   };
 
+  const handleLogin = async (password, email) => {
+    try {
+      setIsLoadingEnter(true);
+      const { token } = await Auth.login(password, email);
+      const data = await Auth.checkToken(token);
+      setUserEmail(data.email);
+      localStorage.setItem('token', token);
+      setIsLoggedIn(true);
+    } catch (err) {
+      console.warn(err);
+      setIsInfoTooltipOpen(true);
+      setInfoTooltipText('Что-то пошло не так!\n Попробуйте ещё раз.');
+      setIsSuccess(false);
+      setError(err);
+    } finally {
+      setIsLoadingEnter(false);
+    }
+  };
+
+  const tokenCheck = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setJwt(token);
+      try {
+        const data = await Auth.checkToken(token);
+        setCurrentUser(data);
+        setUserEmail(data.email);
+        setIsLoggedIn(true);
+      } catch (err) {
+        console.warn(err);
+        setIsLoggedIn(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    tokenCheck();
+  }, []);
+
+  const handleRegister = async (password, email) => {
+    try {
+      setIsLoadingRegistration(true);
+      await Auth.register(password, email);
+      setInfoTooltipText('Вы успешно зарегистрировались!');
+      setIsSuccess(true);
+      setIsInfoTooltipOpen(true);
+    } catch (err) {
+      console.warn(err);
+      setIsSuccess(false);
+      setError(err);
+    } finally {
+      setIsLoadingRegistration(false);
+    }
+  };
+
+  const signOut = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    navigate('/sign-in');
+    setUserEmail('');
+  };
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
-        <Main
-          cards={cards}
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLikeClick}
-          onCardDelete={handleConfirmDeleleCardClick} />
+        <Header
+          signOut={signOut}
+          email={userEmail} />
+        <Routes>
+          <Route
+            path='/'
+            element={
+              <ProtectedRoute
+                Component={Main}
+                isLoggedIn={isLoggedIn}
+                cards={cards}
+                onEditProfile={handleEditProfileClick}
+                onAddPlace={handleAddPlaceClick}
+                onEditAvatar={handleEditAvatarClick}
+                onCardClick={handleCardClick}
+                onCardLike={handleCardLikeClick}
+                onCardDelete={handleConfirmDeleleCardClick} />}
+          />
+          <Route path='/sign-up' element={
+            <Register
+              handleRegister={handleRegister}
+              isLoggedIn={isLoggedIn}
+              isLoading={isLoadingRegistration} />} />
+          <Route path='/sign-in' element={
+            <Login
+              handleLogin={handleLogin}
+              isLoggedIn={isLoggedIn}
+              isLoading={isLoadingEnter} />} />
+        </Routes>
         <Footer />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -208,6 +310,11 @@ export default function App() {
           onSubmit={handleCardDelete}
           isLoading={isLoadingDeleteCardStart}
           card={selectedCard} />
+        <InfoToolTip
+          isOpen={isInfoTooltipOpen}
+          onClose={closeAllPopups}
+          isSuccess={isSuccess}
+          popupText={infoTooltipText} />
       </div>
     </CurrentUserContext.Provider>
   );

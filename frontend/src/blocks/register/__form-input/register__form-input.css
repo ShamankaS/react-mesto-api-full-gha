@@ -1,0 +1,17 @@
+.register__form-input {
+  background-color: #000000;
+  box-shadow: inset 0 -2px #CCCCCC;
+  min-height: 27px;
+  min-width: 100%;
+  border: none;
+  margin-bottom: 30px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  color: #FFFFFF;
+}
+
+.register__form-input::placeholder {
+  font-weight: 400;
+  color: #CCCCCC;
+}

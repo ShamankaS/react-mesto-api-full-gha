@@ -1,4 +1,7 @@
 .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     box-sizing: border-box;
     margin: 45px 0 40px;
     min-height: 74px;

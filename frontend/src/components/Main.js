@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Card from './Card.js';
-import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
+import CurrentUserContext from '../contexts/CurrentUserContext.js';
 
 export default function Main({ cards, onEditProfile, onAddPlace, onEditAvatar, onCardClick, onCardLike, onCardDelete }) {
   const currentUser = useContext(CurrentUserContext);
@@ -14,7 +14,7 @@ export default function Main({ cards, onEditProfile, onAddPlace, onEditAvatar, o
             <div className="profile__avatar-overlay" onClick={onEditAvatar}></div>
           </div>
           <div className="profile__info">
-            <h1 className="profile__name">{currentUser.name}</h1>
+            <h1 className="profile__name">{currentUser.name ?? 'Tata Slyadneva'}</h1>
             <button className="profile__edit-button" type="button" onClick={onEditProfile}></button>
             <p className="profile__about">{currentUser.about}</p>
           </div>

@@ -7,7 +7,7 @@ const BadRequestError = require('../utils/errors/bad-request-err');
 const NotFoundError = require('../utils/errors/not-found-err');
 const ConflictError = require('../utils/errors/conflict-err');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { getJWT } = require('../utils/getJWT');
 
 module.exports.getUsers = async (req, res, next) => {
   try {
@@ -91,11 +91,11 @@ module.exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findUserByCredentials(email, password);
-    const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-    return res.cookie('authorization', token, {
+    const key = getJWT();
+    const token = jwt.sign({ _id: user._id }, key, { expiresIn: '7d' });
+    return res.cookie('token', token, {
       maxAge: 3600000 * 24 * 7,
       httpOnly: true,
-      secure: NODE_ENV === 'production',
     }).send({ message: 'Авторизация прошла успешно' });
   } catch (err) {
     if (err instanceof mongoose.Error.ValidationError) {

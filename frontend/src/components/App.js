@@ -44,7 +44,7 @@ export default function App() {
     if (jwt) {
       try {
         const res = await api.getInitialCards({
-          authorization: `Bearer ${jwt}`,
+          authorization: `${jwt}`,
         });
         setCards(res);
       } catch (err) {
@@ -188,8 +188,9 @@ export default function App() {
       const { token } = await Auth.login(password, email);
       console.log('чекаю токен');
       const data = await Auth.checkToken(token);
+      console.log(data);
       setUserEmail(data.email);
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', data.token);
       setIsLoggedIn(true);
     } catch (err) {
       console.warn(err);
@@ -217,10 +218,6 @@ export default function App() {
       }
     }
   };
-
-  useEffect(() => {
-    tokenCheck();
-  }, []);
 
   const handleRegister = async (password, email) => {
     try {

@@ -37,7 +37,8 @@ export async function checkToken(token) {
     headers: {
       "Content-Type": "application/json",
       "Authorization": `${token}`
-    }
+    },
+    credentials: 'include'
   });
   return handleResponse(data);
 }

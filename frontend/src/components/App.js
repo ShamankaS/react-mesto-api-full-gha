@@ -40,15 +40,6 @@ export default function App() {
   const [error, setError] = useState('');
   const [jwt, setJwt] = useState('');
 
-  const fetchData = async () => {
-    try {
-      const res = await api.getUserInfo();
-      setCurrentUser(res);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   const fetchCards = async () => {
     if (jwt) {
       try {
@@ -63,7 +54,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetchData();
+    tokenCheck();
     fetchCards();
   }, [isLoggedIn, jwt]);
 

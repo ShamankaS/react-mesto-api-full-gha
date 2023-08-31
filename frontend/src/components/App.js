@@ -184,13 +184,11 @@ export default function App() {
   const handleLogin = async (password, email) => {
     try {
       setIsLoadingEnter(true);
-      console.log('забираю токен');
       const { token } = await Auth.login(password, email);
-      console.log('чекаю токен');
       const data = await Auth.checkToken(token);
-      console.log(data);
       setUserEmail(data.email);
-      localStorage.setItem('token', data.token);
+      console.log(token);
+      localStorage.setItem('token', token);
       setIsLoggedIn(true);
     } catch (err) {
       console.warn(err);

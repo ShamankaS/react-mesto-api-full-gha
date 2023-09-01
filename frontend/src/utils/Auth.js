@@ -32,12 +32,11 @@ export async function login(password, email) {
   return handleResponse(data);
 }
 
-export async function checkToken(token) {
+export async function checkToken() {
   const data = await fetch(`${BASE_URL}/users/me`, {
     method: 'GET',
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `${token}`
+      "Content-Type": "application/json"
     },
     credentials: 'include'
   });

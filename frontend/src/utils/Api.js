@@ -17,8 +17,8 @@ class Api {
     return this._handleResponse(res);
   }
 
-  async getInitialCards(headers = this._headers) {
-    const res = await fetch(`${this._url}/cards`, { headers: headers });
+  async getInitialCards() {
+    const res = await fetch(`${this._url}/cards`, { headers: this._headers });
     return this._handleResponse(res);
   }
 
@@ -38,7 +38,8 @@ class Api {
     const res = await fetch(`${this._url}/cards`, {
       method: 'POST',
       headers: this._headers,
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      credentials: 'include'
     });
     return this._handleResponse(res);
   }
@@ -46,7 +47,8 @@ class Api {
   async deleteCard(id) {
     const res = await fetch(`${this._url}/cards/${id}`, {
       method: 'DELETE',
-      headers: this._headers
+      headers: this._headers,
+      credentials: 'include'
     });
     return this._handleResponse(res);
   }
@@ -54,7 +56,8 @@ class Api {
   async like(id) {
     const res = await fetch(`${this._url}/cards/${id}/likes`, {
       method: 'PUT',
-      headers: this._headers
+      headers: this._headers,
+      credentials: 'include'
     });
     return this._handleResponse(res);
   }
@@ -62,7 +65,8 @@ class Api {
   async dislike(id) {
     const res = await fetch(`${this._url}/cards/${id}/likes`, {
       method: 'DELETE',
-      headers: this._headers
+      headers: this._headers,
+      credentials: 'include'
     });
     return this._handleResponse(res);
   }
@@ -78,7 +82,8 @@ class Api {
       headers: this._headers,
       body: JSON.stringify({
         avatar: data.avatar
-      })
+      }),
+      credentials: 'include'
     });
     return this._handleResponse(res);
   }
@@ -87,7 +92,6 @@ class Api {
 export const api = new Api({
   baseUrl: 'https://api.shamanka.students.nomoredomainsicu.ru',
   headers: {
-    authorization: `${localStorage.getItem('token')}`,
     'Content-Type': 'application/json'
   }
 });

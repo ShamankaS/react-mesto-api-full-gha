@@ -43,9 +43,7 @@ export default function App() {
   const fetchCards = async () => {
     if (jwt) {
       try {
-        const res = await api.getInitialCards({
-          authorization: `${jwt}`,
-        });
+        const res = await api.getInitialCards();
         setCards(res);
       } catch (err) {
         console.warn(err);
@@ -187,8 +185,6 @@ export default function App() {
       const { token } = await Auth.login(password, email);
       const data = await Auth.checkToken(token);
       setUserEmail(data.email);
-      console.log(token);
-      localStorage.setItem('token', token);
       setIsLoggedIn(true);
     } catch (err) {
       console.warn(err);

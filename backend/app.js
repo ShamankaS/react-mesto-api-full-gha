@@ -22,7 +22,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.use(requestLogger);
 app.use(helmet());
 app.use(bodyParser.json());
-app.use(cors);
+app.use(cors({
+  credentials: true,
+  origin: true,
+}));
 app.use(cookieParser());
 app.use(limiter);
 

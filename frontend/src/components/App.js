@@ -175,7 +175,7 @@ export default function App() {
   const handleAddPlaceSubmit = async (data) => {
     setIsLoadingAddPlaceStart(true);
     try {
-      const { res } = await api.addNewCard(data);
+      const res = await api.addNewCard(data);
       setCards([res, ...cards]);
       closeAllPopups();
     } catch (error) {

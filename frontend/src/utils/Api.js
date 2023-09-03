@@ -22,7 +22,8 @@ class Api {
 
   async getInitialCards() {
     const res = await fetch(`${this._url}/cards`, {
-      headers: this._headers
+      headers: this._headers,
+      credentials: 'include'
     });
     return this._handleResponse(res);
   }

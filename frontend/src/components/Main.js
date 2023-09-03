@@ -26,8 +26,8 @@ export default function Main({ cards, onEditProfile, onAddPlace, onEditAvatar, o
           {
             cards.map((item) => (
               <Card
-                card={item}
                 key={item._id}
+                card={item}
                 onCardClick={onCardClick}
                 onCardLike={onCardLike}
                 onCardDelete={onCardDelete} />

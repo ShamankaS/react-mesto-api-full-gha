@@ -17,24 +17,30 @@ import Register from './Register.js';
 import InfoToolTip from './InfoTooltip.js';
 
 export default function App() {
+
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isCardPopupOpen, setIsCardPopupOpen] = useState(false);
+
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
+
   const [isLoadingEditProfileStart, setIsLoadingEditProfileStart] = useState(false);
   const [isLoadingAddPlaceStart, setIsLoadingAddPlaceStart] = useState(false);
   const [isLoadingEditAvatarStart, setIsLoadingEditAvatarStart] = useState(false);
   const [isConfirmDeleteCardPopupopen, setIsConfirmDeleteCardPopupopen] = useState(false);
   const [isLoadingDeleteCardStart, setIsLoadingDeleteCardStart] = useState(false);
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
   const [isLoadingRegistration, setIsLoadingRegistration] = useState(false);
   const [isLoadingEnter, setIsLoadingEnter] = useState(false);
+
   const [infoTooltipText, setInfoTooltipText] = useState('');
   const navigate = useNavigate();
   const [error, setError] = useState('');
@@ -120,8 +126,8 @@ export default function App() {
   const handleCardLikeClick = async (card) => {
     const isLiked = card.likes.some(item => (item._id || item) === currentUser._id);
     try {
-      const res = await api.changeLikeCardStatus(card, !isLiked);
-      setCards((state) => state.map(item => item._id === card._id ? res : item));
+      const { res } = await api.changeLikeCardStatus(card, !isLiked);
+      setCards((state) => state.map(item => item._id === res._id ? res : item));
     } catch (error) {
       console.warn(error);
     }
@@ -185,6 +191,7 @@ export default function App() {
       const { token } = await Auth.login(password, email);
       const data = await Auth.checkToken(token);
       setUserEmail(data.email);
+      localStorage.setItem('token', token);
       setIsLoggedIn(true);
     } catch (err) {
       console.warn(err);

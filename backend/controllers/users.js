@@ -106,6 +106,15 @@ module.exports.login = async (req, res, next) => {
   }
 };
 
+// module.exports.logout = async (req, res, next) => {
+//   try {
+//     res.clearCookie('token');
+//     res.send({ message: 'Вы вышли из аккаунта' });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 module.exports.getMe = async (req, res, next) => {
   try {
     const { _id } = req.user;

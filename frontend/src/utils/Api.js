@@ -13,12 +13,17 @@ class Api {
   }
 
   async getUserInfo() {
-    const res = await fetch(`${this._url}/users/me`, { headers: this._headers });
+    const res = await fetch(`${this._url}/users/me`, {
+      headers: this._headers,
+      credentials: 'include'
+    });
     return this._handleResponse(res);
   }
 
   async getInitialCards() {
-    const res = await fetch(`${this._url}/cards`, { headers: this._headers });
+    const res = await fetch(`${this._url}/cards`, {
+      headers: this._headers
+    });
     return this._handleResponse(res);
   }
 
@@ -29,7 +34,8 @@ class Api {
       body: JSON.stringify({
         name: userInfo.name,
         about: userInfo.about
-      })
+      }),
+      credentials: 'include'
     });
     return this._handleResponse(res);
   }

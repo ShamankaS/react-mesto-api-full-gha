@@ -26,18 +26,30 @@ export async function login(password, email) {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ password, email })
+    body: JSON.stringify({ password, email }),
+    credentials: 'include'
   });
   return handleResponse(data);
 }
 
-export async function checkToken(token) {
+export async function checkToken() {
   const data = await fetch(`${BASE_URL}/users/me`, {
     method: 'GET',
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    }
+      "Content-Type": "application/json"
+    },
+    credentials: 'include'
+  });
+  return handleResponse(data);
+}
+
+export async function logout() {
+  const data = await fetch(`${BASE_URL}/signout`, {
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    credentials: 'include'
   });
   return handleResponse(data);
 }

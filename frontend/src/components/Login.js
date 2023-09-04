@@ -52,6 +52,7 @@ export default function Login({ handleLogin, isLoggedIn, isLoading }) {
             placeholder="Пароль"
             name="password"
             id='password'
+            autoComplete="on"
             value={formValue.password || ''}
             onChange={handleChange}
             required />

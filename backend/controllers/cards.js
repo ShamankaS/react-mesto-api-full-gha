@@ -16,9 +16,10 @@ module.exports.getCards = async (req, res, next) => {
 
 module.exports.createCard = async (req, res, next) => {
   try {
+    const owner = req.user._id;
     const { name, link } = req.body;
-    const createdCard = await Card.create({ name, link, owner: req.user._id });
-    res.status(SUCCESS_CREATED_CODE).send({ createdCard });
+    const createdCard = await Card.create({ name, link, owner });
+    res.status(SUCCESS_CREATED_CODE).send(createdCard);
   } catch (err) {
     if (err instanceof mongoose.Error.ValidationError) {
       next(new BadRequestError(err.message));
@@ -57,11 +58,8 @@ const handleCardLike = async (req, res, next, options) => {
       req.params.cardId,
       { [action]: { likes: req.user._id } },
       { new: true },
-    ).populate([
-      { path: 'likes', model: 'user' },
-      { path: 'owner', model: 'user' },
-    ]).orFail();
-    res.send({ updatedCard });
+    ).orFail();
+    res.send(updatedCard);
   } catch (err) {
     if (err instanceof mongoose.Error.DocumentNotFoundError) {
       next(new NotFoundError('Карточка не найдена'));

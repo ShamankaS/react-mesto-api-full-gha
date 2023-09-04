@@ -5,14 +5,14 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
+
 const cors = require('./middlewares/cors');
 const { errorLogger, requestLogger } = require('./middlewares/logger');
-
-const { commonRoutes, protectedRoutes } = require('./routes/index');
-
 const auth = require('./middlewares/auth');
 const errorsHandler = require('./middlewares/error');
 const { limiter } = require('./middlewares/limiter');
+
+const { commonRoutes, protectedRoutes } = require('./routes/index');
 const NotFoundError = require('./utils/errors/not-found-err');
 
 const { PORT = 3000 } = process.env;
@@ -24,7 +24,6 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(cors);
 app.use(cookieParser());
-app.use(limiter);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -42,6 +41,8 @@ app.use(() => {
 app.use(errorLogger);
 app.use(errors());
 app.use(errorsHandler);
+
+app.use(limiter);
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);

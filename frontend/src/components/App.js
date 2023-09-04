@@ -38,11 +38,9 @@ export default function App() {
   const [isLoadingEnter, setIsLoadingEnter] = useState(false);
   const [infoTooltipText, setInfoTooltipText] = useState('');
   const navigate = useNavigate();
-  const [error, setError] = useState('');
-  const [jwt, setJwt] = useState('');
 
   const fetchCards = async () => {
-    if (jwt) {
+    if (isLoggedIn) {
       try {
         const res = await api.getInitialCards();
         setCards(res.reverse());
@@ -52,10 +50,25 @@ export default function App() {
     }
   };
 
+  const fetchData = async () => {
+    if (isLoggedIn) {
+      try {
+        const res = await api.getUserInfo();
+        setCurrentUser(res);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   useEffect(() => {
     tokenCheck();
+  }, []);
+
+  useEffect(() => {
+    fetchData();
     fetchCards();
-  }, [isLoggedIn, jwt]);
+  }, [isLoggedIn]);
 
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
@@ -119,8 +132,8 @@ export default function App() {
   };
 
   const handleCardLikeClick = async (card) => {
-    const isLiked = card.likes.some(item => (item._id || item) === currentUser._id);
     try {
+      const isLiked = card.likes.some(item => item === currentUser._id);
       const res = await api.changeLikeCardStatus(card, !isLiked);
       setCards((state) => state.map(item => item._id === card._id ? res : item));
     } catch (error) {
@@ -183,35 +196,28 @@ export default function App() {
   const handleLogin = async (password, email) => {
     try {
       setIsLoadingEnter(true);
-      const { token } = await Auth.login(password, email);
-      const data = await Auth.checkToken(token);
+      const data = await Auth.login(password, email);
       setUserEmail(data.email);
-      localStorage.setItem('token', token);
       setIsLoggedIn(true);
     } catch (err) {
       console.warn(err);
       setIsInfoTooltipOpen(true);
       setInfoTooltipText('Что-то пошло не так!\n Попробуйте ещё раз.');
       setIsSuccess(false);
-      setError(err);
     } finally {
       setIsLoadingEnter(false);
     }
   };
 
   const tokenCheck = async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setJwt(token);
-      try {
-        const data = await Auth.checkToken(token);
-        setCurrentUser(data);
-        setUserEmail(data.email);
-        setIsLoggedIn(true);
-      } catch (err) {
-        console.warn(err);
-        setIsLoggedIn(false);
-      }
+    try {
+      const data = await Auth.checkToken();
+      setCurrentUser(data);
+      setUserEmail(data.email);
+      setIsLoggedIn(true);
+    } catch (err) {
+      console.warn(err);
+      setIsLoggedIn(false);
     }
   };
 
@@ -224,25 +230,32 @@ export default function App() {
       setIsInfoTooltipOpen(true);
     } catch (err) {
       console.warn(err);
-      setIsSuccess(false);
-      setError(err);
     } finally {
       setIsLoadingRegistration(false);
     }
   };
 
-  const signOut = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    navigate('/sign-in');
-    setUserEmail('');
+  const handleLogout = async () => {
+    try {
+      await Auth.logout();
+      setIsLoggedIn(false);
+      navigate('/sign-in');
+      setUserEmail('');
+    } catch (err) {
+      console.warn(err);
+      setIsInfoTooltipOpen(true);
+      setInfoTooltipText('Что-то пошло не так!\n Попробуйте ещё раз.');
+      setIsSuccess(false);
+    } finally {
+      setIsLoadingEnter(false);
+    }
   };
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <Header
-          signOut={signOut}
+          signOut={handleLogout}
           email={userEmail} />
         <Routes>
           <Route

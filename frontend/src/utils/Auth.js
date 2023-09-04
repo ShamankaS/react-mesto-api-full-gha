@@ -42,3 +42,14 @@ export async function checkToken() {
   });
   return handleResponse(data);
 }
+
+export async function logout() {
+  const data = await fetch(`${BASE_URL}/signout`, {
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    credentials: 'include'
+  });
+  return handleResponse(data);
+}

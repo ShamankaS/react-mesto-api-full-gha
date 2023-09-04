@@ -55,6 +55,7 @@ export default function App() {
       try {
         const res = await api.getUserInfo();
         setCurrentUser(res);
+        setUserEmail(res.email);
       } catch (error) {
         console.log(error);
       }
@@ -196,8 +197,7 @@ export default function App() {
   const handleLogin = async (password, email) => {
     try {
       setIsLoadingEnter(true);
-      const data = await Auth.login(password, email);
-      setUserEmail(data.email);
+      await Auth.login(password, email);
       setIsLoggedIn(true);
     } catch (err) {
       console.warn(err);
